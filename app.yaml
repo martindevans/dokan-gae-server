@@ -1,0 +1,35 @@
+application: dokan-gae
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /CreateFile.*
+  script: dokan/createfile.py
+  
+- url: /DeleteFile.*
+  script: dokan/deletefile.py
+  
+- url: /CloseFile.*
+  script: dokan/closefile.py
+  
+- url: /FileInfo.*
+  script: dokan/fileinfo.py
+  
+- url: /LockFile.*
+  script: dokan/lock.py
+  
+- url: /UnlockFile.*
+  script: dokan/lock.py
+  
+- url: /DeleteDirectory.*
+  script: dokan/deletedirectory.py
+  
+- url: /OpenDirectory.*
+  script: dokan/opendirectory.py
+  
+- url: /CreateDirectory.*
+  script: dokan/createdirectory.py
+
+- url: .*
+  script: main.py
