@@ -19,18 +19,37 @@ from google.appengine.ext.webapp import util
 
 import time
 import dokan
+from dokan import models
 
 class InfoHandler(webapp.RequestHandler):
 	def get(self):
-		response = ""
-		response += "filename=" + self.request.get("filename") + ","
-		response += "length=0,"
-		response += "creation_ticks=" + str(long(time.time())) + ","
-		response += "lastaccess_ticks=" + str(long(time.time())) + ","
-		response += "lastwrite_ticks=" + str(long(time.time())) + ","
-		response += "attributes=128"
+		out = self.response.out.write
+	
+		out("filename=" + self.request.get("filename"))
 		
-		self.response.out.write(response)
+		folder = models.FindFolder(self.request.get("filename"))
+		if (folder is not None):
+			out(",creation_ticks=" + str(long(time.mktime(folder.created.timetuple()))))
+			out(",lastaccess_ticks=" + str(long(time.mktime(folder.modified.timetuple()))))
+			out(",lastwrite_ticks=" + str(long(time.mktime(folder.modified.timetuple()))))
+			out(",length=0")
+			out(",attributes=16")
+			out(",message=folder")
+			out(",response_code=" + str(dokan.DOKAN_SUCCESS))
+			return
+		
+		file = models.FindFile(self.request.get("filename"))
+		if (file is not None):
+			out(",creation_ticks=" + str(long(time.mktime(file.created.timetuple()))))
+			out(",lastaccess_ticks=" + str(long(time.mktime(file.modified.timetuple()))))
+			out(",lastwrite_ticks=" + str(long(time.mktime(file.modified.timetuple()))))
+			out(",length=0")
+			out(",attributes=128")
+			out(",message=file")
+			out(",response_code=" + str(dokan.DOKAN_SUCCESS))
+			return
+			
+		self.response.out.write("message=not found,response_code=" + str(dokan.ERROR_FILE_NOT_FOUND))
 
 def main():
     application = webapp.WSGIApplication([('/FileInfo.*', InfoHandler)],

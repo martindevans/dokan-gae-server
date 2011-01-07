@@ -22,6 +22,9 @@ handlers:
 - url: /UnlockFile.*
   script: dokan/lock.py
   
+- url: /FindFiles.*
+  script: dokan/findfiles.py
+  
 - url: /DeleteDirectory.*
   script: dokan/deletedirectory.py
   

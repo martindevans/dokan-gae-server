@@ -18,10 +18,25 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 import dokan
+from dokan import models
 
 class CreateHandler(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(str(dokan.DOKAN_SUCCESS))
+		filepath = self.request.get("filepath")
+		access = int(self.request.get("access"))			
+		share = int(self.request.get("share"))
+		mode = int(self.request.get("mode"))
+		options = int(self.request.get("options"))
+		processid = int(self.request.get("processid"))
+		
+		if not (mode in dokan.FILE_MODE):
+			self.response.out.write("response_code=" + str(dokan.DOKAN_ERROR) + ",message=" + str(mode) + " is not a valid filemode option")
+			return
+		if not options in dokan.FILE_OPTIONS:
+			self.response.out.write("response_code=" + str(dokan.DOKAN_ERROR) + ",message=" + str(options) + " is not a valid fileoptions option")
+			return
+		
+		self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
 
 def main():
     application = webapp.WSGIApplication([('/CreateFile.*', CreateHandler)],

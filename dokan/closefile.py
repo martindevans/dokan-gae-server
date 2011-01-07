@@ -18,10 +18,11 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 import dokan
+from dokan import models
 
 class CloseHandler(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(str(dokan.DOKAN_SUCCESS))
+		self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
 
 def main():
     application = webapp.WSGIApplication([('/CloseFile.*', CloseHandler)],

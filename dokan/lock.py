@@ -16,16 +16,37 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from google.appengine.ext import db
 
 import dokan
+from dokan import models
 
+def LockFile(file, processid):	
+	def transaction(filekey, processid):
+		f = db.get(filekey)
+		if not f.locked:
+			f.locked = True
+			f.locked_by = processid
+			return True
+		return False
+	return db.run_in_transaction(file.key(), processid)
+
+def UnlockFile(file, processid):
+	def transaction(filekey, processid):
+		f = db.get(filekey)
+		if f.locked and f.locked_by == processid:
+			f.locked = False
+			return True
+		return False
+	return db.run_in_transaction(file.key(), processid)
+	
 class LockHandler(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(str(dokan.DOKAN_SUCCESS))
+		self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
 
 class UnlockHandler(webapp.RequestHandler):
 	def get(self):
-		self.response.out.write(str(dokan.DOKAN_SUCCESS))
+		self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
 		
 def main():
     application = webapp.WSGIApplication([('/LockFile.*', LockHandler),
