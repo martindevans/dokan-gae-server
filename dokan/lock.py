@@ -27,6 +27,7 @@ def LockFile(file, processid):
 		if not f.locked:
 			f.locked = True
 			f.locked_by = processid
+			f.put()
 			return True
 		return False
 	return db.run_in_transaction(file.key(), processid)
@@ -36,6 +37,7 @@ def UnlockFile(file, processid):
 		f = db.get(filekey)
 		if f.locked and f.locked_by == processid:
 			f.locked = False
+			f.put()
 			return True
 		return False
 	return db.run_in_transaction(file.key(), processid)

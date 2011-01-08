@@ -8,9 +8,9 @@ class Folder(db.Model):
 	
 	def getPath(self):
 		if self.parent_folder is None:
-			return "\\"
+			return ""
 		else:
-			return parent_folder.getPath() + "\\" + foldername
+			return self.parent_folder.getPath() + "\\" + self.foldername
 
 class File(db.Model):
 	filename = db.StringProperty(multiline=False)
@@ -21,14 +21,34 @@ class File(db.Model):
 	modified = db.DateTimeProperty(auto_now=True)
 	
 	def getPath(self):
-		return parent_folder.getPath() + "\\" + filename
-	
-def FindFile(filepath):
+		return self.parent_folder.getPath() + "\\" + self.filename
+
+def FindFilesystemEntry(filepath):
 	return None
+		
+def FindFile(filepath, create=False):
+	pathparts = filepath.split('\\')
+	if (len(pathparts) == 1):
+		root = ["\\"]
+		root.extend(pathparts)
+		pathparts = root
+
+	file_name = pathparts[-1]
+	parentfolderpath = "\\".join(pathparts[0:-1])
+	
+	folder = FindFolder(parentfolderpath)
+	
+	if (folder is None):
+		return None
+		
+	if (create):
+		return File.get_or_insert(filepath, filename=file_name, parent_folder=folder)
+	else:
+		return File.all().filter("filename = ", file_name).filter("parent_folder = ", folder).get()
 	
 def FindFolder(filepath, create=False):
 	if (filepath == "\\" or filepath == ""):
-		return Folder.get_or_insert("\\", foldername="\\", path="\\", parent_folder=None)
+		return Folder.get_or_insert("\\", foldername="\\", path="", parent_folder=None)
 	
 	pathparts = filepath.split('\\')
 	

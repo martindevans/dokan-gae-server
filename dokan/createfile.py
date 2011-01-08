@@ -35,8 +35,15 @@ class CreateHandler(webapp.RequestHandler):
 		if not options in dokan.FILE_OPTIONS:
 			self.response.out.write("response_code=" + str(dokan.DOKAN_ERROR) + ",message=" + str(options) + " is not a valid fileoptions option")
 			return
+			
+		#this might be a folder being created due to the cross over between files and folders, this needs fixing
 		
-		self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
+		file = models.FindFile(filepath, True)
+		
+		if (file is None):
+			self.response.out.write("response_code=" + str(dokan.ERROR_PATH_NOT_FOUND) + ",message=file not found or created, this means an invalid path")
+		else:
+			self.response.out.write("response_code=" + str(dokan.DOKAN_SUCCESS))
 
 def main():
     application = webapp.WSGIApplication([('/CreateFile.*', CreateHandler)],
